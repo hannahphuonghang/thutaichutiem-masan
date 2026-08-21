@@ -1,0 +1,50 @@
+functionsDirectory = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current/netlify/functions"
+functionsDirectoryOrigin = "config-v1"
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+
+[build]
+publish = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current"
+publishOrigin = "config"
+base = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current"
+command = "node build.mjs"
+commandOrigin = "config"
+functions = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current/netlify/functions"
+
+  [build.environment]
+
+  [build.processing]
+
+    [build.processing.css]
+
+    [build.processing.html]
+
+    [build.processing.images]
+
+    [build.processing.js]
+
+  [build.services]
+
+[functions]
+
+  [functions."*"]
+
+[[headers]]
+for = "/*"
+
+  [headers.values]
+  X-Content-Type-Options = "nosniff"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[redirects]]
+from = "/api"
+to = "/.netlify/functions/api"
+status = 200
+force = false
+
+  [redirects.query]
+
+  [redirects.conditions]
+
+  [redirects.headers]
