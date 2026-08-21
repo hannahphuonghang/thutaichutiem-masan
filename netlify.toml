@@ -8,7 +8,6 @@ plugins = []
 publish = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current"
 publishOrigin = "config"
 base = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current"
-command = "node build.mjs"
 commandOrigin = "config"
 functions = "/workspace/scratch/1a5e04d190a0/rtl-quiz-netlify-current/netlify/functions"
 
