@@ -48,7 +48,6 @@
     <section id="guide" class="screen">
       <div class="eyebrow">CẨM NANG TRƯNG BÀY</div><h2 id="guideTitle" class="sectionTitle">Bí quyết trưng bày đẹp – đúng chuẩn</h2>
       <div id="guideContent"></div>
-      <div class="stickyAction"><button id="guideStartBtn" class="btn danger" onclick="startAfterGuide()">BẮT ĐẦU THI</button></div>
     </section>
 
     <section id="profile" class="screen">
@@ -57,7 +56,7 @@
       <label>Tên bảng hiệu/Tên chủ cửa hàng</label><input id="storeName" class="input" maxlength="100" placeholder="Ví dụ: Tạp hóa Cô Hằng">
       <div class="grid2"><div><label>Tỉnh/Thành phố</label><select id="province" class="input" onchange="renderWardOptions()"></select></div><div><label>Phường/Xã</label><select id="ward" class="input" onchange="renderSalesRepOptions()"></select></div></div><label>Đại diện kinh doanh phụ trách</label><select id="salesRep" class="input"></select><div class="repNote">Danh sách được lọc tự động theo Phường/Xã đã chọn.</div>
       <label class="consent"><input id="consent" type="checkbox"><span id="consentText">Tôi đồng ý ghi nhận kết quả.</span></label>
-      <div id="profileError" class="error"></div><button class="btn primary" onclick="submitProfile()">XEM HƯỚNG DẪN</button>
+      <div id="profileError" class="error"></div><button class="btn primary" onclick="submitProfile()">BẮT ĐẦU THI</button>
     </section>
 
     <section id="categories" class="screen" hidden>
@@ -165,20 +164,19 @@
   async function refreshHomeRanking(){try{var list=await api('getLeaderboard','','',Number(state.boot.config.LEADERBOARD_LIMIT||10));renderRanking(list,$('homeRanking'))}catch(e){}}
   function renderRanking(list,host){host.innerHTML='';if(!list||!list.length){host.innerHTML='<div class="empty">Chưa có kết quả. Hãy trở thành cửa hàng đầu tiên!</div>';return}list.forEach(function(x){var row=document.createElement('div');row.className='rankRow';row.innerHTML='<span class="rankNo">'+x.rank+'</span><span class="rankStore"><b>'+escapeHtml(x.storeName)+'</b><small>'+escapeHtml(x.categoryName)+' · '+escapeHtml(x.levelName)+'</small></span><span class="rankScore">'+x.score+'đ<small>'+formatTime(x.durationSeconds)+'</small></span>';host.appendChild(row)})}
 
-  function openGuide(){var url=normalizeDrivePreviewUrl(state.boot.config.GUIDE_PDF_URL||'');var host=$('guideContent');if(url){host.innerHTML='<iframe class="guideFrame" src="'+escapeAttr(url)+'" title="Cẩm nang trưng bày"></iframe>'}else{host.innerHTML='<div class="card"><div class="demoGuideImage"><img src="'+escapeAttr(DEMO_ASSETS.shelf)+'" alt="Kệ minh họa"></div><p class="muted">Chưa gắn PDF. Dán URL PDF công khai vào CONFIG → GUIDE_PDF_URL.</p></div>'}var btn=$('guideStartBtn');if(btn)btn.textContent=state.user?'BẮT ĐẦU THI':'NHẬP THÔNG TIN ĐỂ THI';navigate('guide')}
-  function startAfterGuide(){if(!state.user){startRegistration();return}beginOfficialGame()}
+  function openGuide(){var url=normalizeDrivePreviewUrl(state.boot.config.GUIDE_PDF_URL||'');var host=$('guideContent');if(url){host.innerHTML='<iframe class="guideFrame" src="'+escapeAttr(url)+'" title="Cẩm nang trưng bày"></iframe>'}else{host.innerHTML='<div class="card"><div class="demoGuideImage"><img src="'+escapeAttr(DEMO_ASSETS.shelf)+'" alt="Kệ minh họa"></div><p class="muted">Chưa gắn PDF. Dán URL PDF công khai vào CONFIG → GUIDE_PDF_URL.</p></div>'}navigate('guide')}
   function startRegistration(){navigate('profile')}
   function renderLocationOptions(){var p=$('province');p.innerHTML='<option value="">Chọn Tỉnh/Thành phố</option>';Object.keys(state.boot.locations||{}).forEach(function(name){var o=document.createElement('option');o.value=name;o.textContent=name;p.appendChild(o)});$('ward').innerHTML='<option value="">Chọn Phường/Xã</option>';$('salesRep').innerHTML='<option value="">Chọn ĐDKD</option>'}
   function renderWardOptions(){var province=$('province').value,w=$('ward');w.innerHTML='<option value="">Chọn Phường/Xã</option>';Object.keys(((state.boot.locations||{})[province]||{})).forEach(function(name){var o=document.createElement('option');o.value=name;o.textContent=name;w.appendChild(o)});$('salesRep').innerHTML='<option value="">Chọn ĐDKD</option>'}
   function renderSalesRepOptions(){var province=$('province').value,ward=$('ward').value,s=$('salesRep');s.innerHTML='<option value="">Chọn ĐDKD</option>';var reps=((((state.boot.locations||{})[province]||{})[ward])||[]);reps.forEach(function(rep){var o=document.createElement('option');o.value=rep.id;o.textContent=rep.name;o.dataset.name=rep.name;s.appendChild(o)});if(reps.length===1)s.value=reps[0].id}
   async function submitProfile(){
     var err=$('profileError');err.classList.remove('on');
-    try{wait(true);var rep=$('salesRep'),opt=rep.options[rep.selectedIndex];state.user=await api('registerParticipant',{phone:$('phone').value,storeName:$('storeName').value,province:$('province').value,ward:$('ward').value,salesRepId:rep.value,salesRepName:opt&&opt.dataset.name||opt&&opt.textContent||'',consent:$('consent').checked});prepareDefaultChallenge();openGuide()}
+    try{wait(true);var rep=$('salesRep'),opt=rep.options[rep.selectedIndex];state.user=await api('registerParticipant',{phone:$('phone').value,storeName:$('storeName').value,province:$('province').value,ward:$('ward').value,salesRepId:rep.value,salesRepName:opt&&opt.dataset.name||opt&&opt.textContent||'',consent:$('consent').checked});prepareDefaultChallenge();await beginOfficialGame()}
     catch(e){err.textContent=e.message;err.classList.add('on')}finally{wait(false)}
   }
   function renderCategories(){var host=$('categoryCards');host.innerHTML='';state.boot.categories.forEach(function(c){var selected=state.selectedCategories.indexOf(c.id)>=0;var b=document.createElement('button');b.className='selectCard'+(selected?' selected':'');b.innerHTML='<span class="selectVisual">'+imageOrIcon(c.imageUrl,c.icon)+'</span><span class="selectInfo"><b>'+escapeHtml(c.name)+'</b><small>Chọn nếu cửa hàng đang tham gia trưng bày</small></span><span class="check">'+(selected?'✓':'')+'</span>';b.onclick=function(){toggleCategory(c.id)};host.appendChild(b)});$('categoryNext').disabled=!state.selectedCategories.length}
   function toggleCategory(id){var i=state.selectedCategories.indexOf(id);if(i>=0){state.selectedCategories.splice(i,1);delete state.selectedLevels[id]}else state.selectedCategories.push(id);renderCategories()}
-  function continueToLevels(){prepareDefaultChallenge();openGuide()}
+  function continueToLevels(){prepareDefaultChallenge();beginOfficialGame()}
   function renderLevels(){var host=$('levelGroups');host.innerHTML='';state.selectedCategories.forEach(function(catId){var c=categoryById(catId),group=document.createElement('div');group.className='levelGroup';group.innerHTML='<h3>'+c.icon+' '+escapeHtml(c.name)+'</h3>';var list=document.createElement('div');list.className='levelCards';state.boot.levels.filter(function(l){return l.categoryId===catId}).forEach(function(l){var selected=state.selectedLevels[catId]===l.id;var b=document.createElement('button');b.className='levelCard'+(selected?' selected':'');b.innerHTML='<span class="levelThumb">'+imageOrIcon(l.imageUrl,'🗄️')+'</span><span class="selectInfo"><b>'+escapeHtml(l.name)+'</b><small>Chọn đúng mức kệ cửa hàng đang tham gia</small></span><span class="check">'+(selected?'✓':'')+'</span>';b.onclick=function(){state.selectedLevels[catId]=l.id;renderLevels()};list.appendChild(b)});group.appendChild(list);host.appendChild(group)});$('levelNext').disabled=!state.selectedCategories.every(function(id){return !!state.selectedLevels[id]})}
 
   var tutorialDefs=[
@@ -186,7 +184,7 @@
     {icon:'📱',title:'Mô phỏng thao tác R1',text:'Chạm trực tiếp vào nút cần sử dụng trên màn hình giả lập.',type:'R1'},
     {icon:'🧺',title:'Kéo thả sản phẩm',text:'Kéo sản phẩm vào tầng kệ, hoặc chạm sản phẩm rồi chạm vị trí muốn đặt.',type:'DRAG_DROP'}
   ];
-  function startTutorial(){openGuide()}
+  function startTutorial(){prepareDefaultChallenge();beginOfficialGame()}
   function reviewTutorial(){state.tutorialIndex=0;state.tutorialPassed={};renderTutorial();navigate('tutorial')}
   function renderTutorial(){
     var d=tutorialDefs[state.tutorialIndex];$('tutorialDots').innerHTML=tutorialDefs.map(function(_,i){return '<i class="'+(i<=state.tutorialIndex?'on':'')+'"></i>'}).join('');
