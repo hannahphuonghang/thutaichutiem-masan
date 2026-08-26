@@ -158,10 +158,10 @@
       $('appName').textContent=state.boot.config.APP_NAME||'THỬ TÀI TRƯNG BÀY';$('appSubtitle').textContent=state.boot.config.APP_SUBTITLE||'';
       $('guideTileTitle').textContent=state.boot.config.GUIDE_TITLE||'Bí quyết trưng bày';$('guideTitle').textContent=state.boot.config.GUIDE_TITLE||'Bí quyết trưng bày đẹp – đúng chuẩn';$('consentText').textContent=state.boot.config.CONSENT_TEXT||'Tôi đồng ý ghi nhận kết quả.';
       var banner=normalizeDriveImageUrl(state.boot.config.HOME_BANNER_URL||DEMO_ASSETS.hero);$('hero').style.backgroundImage='url("'+banner.replace(/"/g,'')+'")';$('hero').classList.add('hasImage');
-      renderRanking(state.boot.leaderboard,$('homeRanking'));renderLocationOptions();setInterval(refreshHomeRanking,5000);setInterval(refreshResultRanking,5000);
+      renderRanking(state.boot.leaderboard,$('homeRanking'));renderLocationOptions();setInterval(refreshHomeRanking,30000);setInterval(refreshResultRanking,30000);
     }catch(e){toast(e.message)}finally{wait(false)}
   }
-  async function refreshHomeRanking(){try{var list=await api('getLeaderboard','','',Number(state.boot.config.LEADERBOARD_LIMIT||10));renderRanking(list,$('homeRanking'))}catch(e){}}
+  async function refreshHomeRanking(){if(state.screen !== 'home') return;try{var list=await api('getLeaderboard','','',Number(state.boot.config.LEADERBOARD_LIMIT||10));renderRanking(list,$('homeRanking'))}catch(e){}}
   async function refreshResultRanking(){if(state.screen!=='result')return;try{var list=await api('getLeaderboard','','',Number(state.boot.config.LEADERBOARD_LIMIT||10));renderRanking(list,$('resultRanking'));if(state.user&&state.user.phone){var mine=list.find(function(x){return x.isMe});if(mine&&$('resultRank'))$('resultRank').textContent='#'+mine.rank}}catch(e){}}
   function renderRanking(list,host){host.innerHTML='';if(!list||!list.length){host.innerHTML='<div class="empty">Chưa có kết quả. Hãy trở thành cửa hàng đầu tiên!</div>';return}list.forEach(function(x){var row=document.createElement('div');row.className='rankRow';row.innerHTML='<span class="rankNo">'+x.rank+'</span><span class="rankStore"><b>'+escapeHtml(x.storeName)+'</b></span><span class="rankScore">'+x.score+'đ<small>'+formatTime(x.durationSeconds)+'</small></span>';host.appendChild(row)})}
 
